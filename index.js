@@ -56,9 +56,36 @@ function menu() {
 function displayAllDepartments() {
     return db
         .promise()
-        .query("SELECT name, id FROM department")
+        .query("SELECT id, name FROM department")
         .then((data) => {
-            console.log(data);
+            console.log(data[0]);
+            menu();
+        })
+        .catch((err) => {
+            console.error(err);
+        });
+}
+
+function displayAllRoles() {
+    return db
+        .promise()
+        .query("SELECT id, title, salary, department_id FROM role")
+        .then((data) => {
+            console.log(data[0]);
+            menu();
+        })
+        .catch((err) => {
+            console.error(err);
+        });
+}
+
+function displayAllEmployees() {
+    return db
+        .promise()
+        .query("SELECT id, first_name, last_name, role_id, manager_id FROM employee")
+        .then((data) => {
+            console.log(data[0]);
+            menu();
         })
         .catch((err) => {
             console.error(err);
