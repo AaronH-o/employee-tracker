@@ -92,4 +92,65 @@ function displayAllEmployees() {
         });
 }
 
+function addDepartment() {
+    inquirer.prompt(
+        [
+            {
+                type: "input",
+                message: "What is the name of the department?",
+                name: "departmentName",
+            },
+        ]
+    ).then((answers) => {
+        db
+            .promise()
+            .query(`INSERT INTO department (name) VALUES ('${answers.departmentName}')`)
+            .then(() => {
+                menu();
+            })
+            .catch((err) => {
+                console.error(err);
+            });
+    });
+}
+
+
+
+async function addRole() {
+    const choiceArray = await db
+        .promise()
+        .query("SELECT id AS value, name FROM department")
+        .then(([results]) => results);
+    inquirer.prompt(
+        [
+            {
+                type: "input",
+                message: "What is the name of the role?",
+                name: "roleTitle",
+            },
+            {
+                type: "input",
+                message: "What is the salary of the role?",
+                name: "roleSalary",
+            },
+            {
+                type: "list",
+                message: "Wich department does this role belong to?",
+                name: "roleDepartmentId",
+                choices: choiceArray,
+            }
+        ]
+    ).then((answers) => {
+        db
+            .promise()
+            .query(`INSERT INTO role (title, salary, department_id) VALUES ('${answers.roleTitle}', ${answers.roleSalary}, ${answers.roleDepartmentId})`)
+            .then(() => {
+                menu();
+            })
+            .catch((err) => {
+                console.error(err);
+            });
+    });
+}
+
 menu();
