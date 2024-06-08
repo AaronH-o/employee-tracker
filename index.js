@@ -117,7 +117,7 @@ function addDepartment() {
 
 
 async function addRole() {
-    const choiceArray = await db
+    const departmentArray = await db
         .promise()
         .query("SELECT id AS value, name FROM department")
         .then(([results]) => results);
@@ -137,13 +137,73 @@ async function addRole() {
                 type: "list",
                 message: "Wich department does this role belong to?",
                 name: "roleDepartmentId",
-                choices: choiceArray,
+                choices: departmentArray,
             }
         ]
     ).then((answers) => {
         db
             .promise()
             .query(`INSERT INTO role (title, salary, department_id) VALUES ('${answers.roleTitle}', ${answers.roleSalary}, ${answers.roleDepartmentId})`)
+            .then(() => {
+                menu();
+            })
+            .catch((err) => {
+                console.error(err);
+            });
+    });
+}
+
+async function addEmployee() {
+    const roleArray = await db
+        .promise()
+        .query("SELECT id AS value, title FROM role")
+        .then(([results]) => results);
+    const employeeArray = await db
+        .promise()
+        .query("SELECT id AS value, first_name, last_name FROM employee")
+        .then(([results]) => results);
+    employeeArray.push("None");
+    inquirer.prompt(
+        [
+            {
+                type: "input",
+                message: "What is the employee's first name?",
+                name: "firstName",
+            },
+            {
+                type: "input",
+                message: "What is the employee's last name?",
+                name: "lastName",
+            },
+            {
+                type: "list",
+                message: "Which role does this employee have?",
+                name: "employeeRole",
+                choices: roleArray,
+            },
+            {
+                type: "list",
+                message: "Who is the manager for this employee?",
+                name: "employeeManager",
+                choices: employeeArray,
+            }
+        ]
+    ).then((answers) => {
+        console.log(answers.employeeManager);
+        (answers.employeeManager == "None") ? 
+        db
+            .promise()
+            .query(`INSERT INTO employee (first_name, last_name, role_id) VALUES ('${answers.firstName}', '${answers.lastName}', ${answers.employeeRole})`)
+            .then(() => {
+                menu();
+            })
+            .catch((err) => {
+                console.error(err);
+            })
+        :
+        db
+            .promise()
+            .query(`INSERT INTO employee (first_name, last_name, role_id, manager_id) VALUES ('${answers.firstName}', '${answers.lastName}', ${answers.employeeRole}, ${answers.employeeManager})`)
             .then(() => {
                 menu();
             })
